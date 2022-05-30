@@ -6,5 +6,10 @@
 #######################################################
 
 # Definición de funciones
+    # Cargar países
+
 
 # Programa Principal (PP)
+
+
+
