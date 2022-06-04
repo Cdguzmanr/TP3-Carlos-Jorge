@@ -1,17 +1,17 @@
 #######################################################
 #Creado por: Carlos Guzmán, Jorge Guevara
 #Fecha de creación: 30/05/2022 5:15 pm
-#Última modificación: 3/6/2022 4:50 pm 
+#Última modificación: 4/6/2022 10:30 pm 
 #Versión de python: 3.10.2
 #######################################################
 
 # Importación de Librerias
 from tkinter import *
-from turtle import width
 
 # Definción de Variables Globales
 listaPaises = [""]    # Aquí se almacenará la información de los archivos txt
 diccPersonalidades = {}
+matrizUsuarios = []
 
 ###################################################################################
 # Definición de funciones
@@ -79,7 +79,7 @@ def registrarUsuario():
     # if not listaPaises or not diccPersonalidades:
     #     return crearAviso('Debe cargar las bases de datos', inicio)
     # Setup de ventana
-    ventanaInsertar = Toplevel(inicio)
+    ventanaInsertar = Toplevel(inicio)      
     ventanaInsertar.grab_set()
     ventanaInsertar.resizable(False, False)
     ventanaInsertar.title('Registrar un nuevo usuario')
@@ -88,7 +88,6 @@ def registrarUsuario():
     # Encabezado
     encabezadoInsertar = Label(ventanaInsertar, text="Registrar un nuevo usuario", font=("Calibri 20"),bg='white')
     encabezadoInsertar.grid(row=0, column=0, columnspan=2 ,padx=20, pady=5)
-    cedulaTexto = Label(ventanaInsertar,text="Cédula  ",font="Calibri 16",bg='white')
     # Entrada de cédula
     cedulaTexto = Label(ventanaInsertar,text="Cédula",font="Calibri 16",bg='white')
     cedulaTexto.grid(row=1,column=0,padx=5,pady=5)                           
@@ -117,7 +116,7 @@ def registrarUsuario():
     personalidadSelect = OptionMenu(ventanaInsertar,personalidad, diccPersonalidades)
     personalidadSelect.config(width=50)
     personalidadSelect.grid(row=5,column=1,padx=0,pady=5)
-    
+
     # Pais
     paisTexto = Label(ventanaInsertar,text="País",font="Calibri 16",bg='white')
     paisTexto.grid(row=6,column=0,padx=5,pady=5)      
@@ -125,75 +124,25 @@ def registrarUsuario():
     paisSelect = OptionMenu(ventanaInsertar,pais,*listaPaises)
     paisSelect.config(width=50)
     paisSelect.grid(row=6,column=1,padx=0,pady=10)
+
+    # Botones
     insertar = Button(ventanaInsertar, text="Insertar", width=20, height=2, bg='#ffffbf') # , command=lambda: insertarDatos(ventanaInsertar, fechaEntrada, tipoEntrada, codigo, nombreEntrada, hobbyUno, hobbyDos, hobbyTres, profesion, correo, pais, descripcionEntrada)
     limpiar = Button(ventanaInsertar, text="Limpiar", width=20, height=2, bg='#b8daba', command=lambda: refrescarVentana(ventanaInsertar, lambda:registrarUsuario()))
     regresar = Button(ventanaInsertar, text="Regresar", width=20, height=2, bg='#deb1bf', command=lambda: ventanaInsertar.destroy())
     insertar.place(x = 25, y = 300)
     limpiar.place(x = 200, y = 300)
     regresar.place(x = 375, y = 300)   
-
-    # # Ajustar Cambios - Radio Button
-    # fechaEntrada.bind('<FocusOut>', lambda evento: seleccionarTipo(fechaEntrada, botonAdulto, botonVoluntario, codigo))
-    # # Id de participante
-    # codigoTexto = Label(ventanaInsertar,text="Identificador de participante",font="Calibri 16",bg='white')
-    # codigoTexto.grid(row=4,column=0,padx=0,pady=5)
-    # codigo.grid(row=4,column=1,padx=0,pady=5)
-    # #Nombre Completo
-    # nombreTexto = Label(ventanaInsertar,text="Nombre completo",font="Calibri 16",bg='white')
-    # nombreTexto.grid(row=5,column=0,padx=0,pady=5)
-    # nombreEntrada = Text(ventanaInsertar,height=1,width=40,bg = 'lightblue')
-    # nombreEntrada.grid(row=5,column=1,padx=0,pady=5)
-    # correo = Label(ventanaInsertar,text="",font="Calibri 16",bg='white')
-    # nombreEntrada.bind('<Key>', lambda evento: actualizarCorreo(correo, nombreEntrada, matrizVoluntarios))
-    # # Hobbies
-    # hobbiesTexto = Label(ventanaInsertar,text="Hobbies",font="Calibri 16",bg='white')
-    # hobbiesTexto.grid(row=6,column=0,padx=0,pady=5)
-    # hobbyUno = StringVar()
-    # hobbyUnoSelect = OptionMenu(ventanaInsertar,hobbyUno,*hobbiesLista)
-    # hobbyUnoSelect.grid(row=6,column=1,padx=0,pady=5)
-    # hobbyDos = StringVar()
-    # hobbyDosSelect = OptionMenu(ventanaInsertar,hobbyDos,*hobbiesLista)
-    # hobbyDosSelect.grid(row=7,column=1,padx=0,pady=5)
-    # hobbyTres = StringVar()
-    # hobbyTresSelect = OptionMenu(ventanaInsertar,hobbyTres,*hobbiesLista)
-    # hobbyTresSelect.grid(row=8,column=1,padx=0,pady=5)
-    # # Profesión
-    # profesionTexto = Label(ventanaInsertar,text="Profesión u oficio",font="Calibri 16",bg='white')
-    # profesionTexto.grid(row=9,column=0,padx=0,pady=5)
-    # profesion = Label(ventanaInsertar,text=str(profesionRandom()),font="Calibri 16",bg='white')
-    # profesion.grid(row=9,column=1,padx=0,pady=5)
-    # # Correo electrónico
-    # correoTexto = Label(ventanaInsertar,text="Correo electrónico",font="Calibri 16",bg='white')
-    # correoTexto.grid(row=10,column=0,padx=0,pady=5)
-    # correo.grid(row=10,column=1,padx=0,pady=5)
-    # # País de Origen
-    # paisTexto = Label(ventanaInsertar,text="País de Origen",font="Calibri 16",bg='white')
-    # paisTexto.grid(row=11,column=0,padx=0,pady=5)
-    # pais = Label(ventanaInsertar,text=str(conseguirPais(diccPaises, True)),font="Calibri 16",bg='white')
-    # pais.grid(row=11,column=1,padx=0,pady=5)
-    # # Estado
-    # estadoTexto = Label(ventanaInsertar,text="Estado",font="Calibri 16",bg='white')
-    # estadoTexto.grid(row=12,column=0,padx=0,pady=5)
-    # estado = Label(ventanaInsertar,text="Activo",font="Calibri 16",bg='white')
-    # estado.grid(row=12,column=1,padx=0,pady=5)
-    # # Descripción
-    # descripcionTexto = Label(ventanaInsertar,text="Descripción",font="Calibri 16",bg='white')
-    # descripcionTexto.grid(row=13,column=0,padx=0,pady=5)
-    # descripcionEntrada = Text(ventanaInsertar,height=2,width=40,bg = 'lightblue')
-    # descripcionEntrada.grid(row=13,column=1,padx=0,pady=5)
-    # # Botones
-    # insertar = Button(ventanaInsertar, text="Insertar", width=25, height=2, bg='lightblue', command=lambda: insertarDatos(ventanaInsertar, fechaEntrada, tipoEntrada, codigo, nombreEntrada, hobbyUno, hobbyDos, hobbyTres, profesion, correo, pais, descripcionEntrada))
-    # limpiar = Button(ventanaInsertar, text="Limpiar", width=25, height=2, bg='lightblue', command=lambda: refrescarInsertar(ventanaInsertar, lambda:insertarParticipante()))
-    # regresar = Button(ventanaInsertar, text="Regresar", width=25, height=2, bg='lightblue', command=lambda: ventanaInsertar.destroy())
-    # insertar.place(x = 10, y = 620)
-    # limpiar.place(x = 205, y = 620)
-    # regresar.place(x = 400, y = 620)    
-
     return
 
 #_________________________________________________________________________________# Boton 3
 def registrarDinamico(): 
     print("\nRegistro dinámico")
+    ventanaRegistroDinamico = Toplevel(inicio)      # UTILIZAR PARA CREAR NUEVA VENTANA
+    ventanaRegistroDinamico.grab_set()
+    ventanaRegistroDinamico.resizable(False, False)
+    ventanaRegistroDinamico.title('Registrar un nuevo usuario')
+    ventanaRegistroDinamico.geometry('550x350')
+    ventanaRegistroDinamico.configure(bg='white')    
     return
 
 #_________________________________________________________________________________# Boton 4
