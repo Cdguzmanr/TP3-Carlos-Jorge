@@ -124,12 +124,9 @@ def cargarBDPaises():
     listaQuince=[]
     for linea in f.readlines():
         listaPais.append(linea[:-1])
-    i=0
-    while i <15:
+    for i in range(15):
         pais=random.choice(listaPais)
-        if pais not in listaPais:
-            listaQuince.append(pais)
-            i+=1
+        listaQuince.append(pais)
     f.close()
     return listaQuince
 
