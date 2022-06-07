@@ -15,8 +15,8 @@ import pickle
 listaPaises = []    # Aquí se almacenará la información de los archivos txt
 diccPersonalidades = {}
 listaPersonalidades = []
-matrizUsuarios = []
-#matrizUsuarios = [['2-0840-0626', 'Carlos Guzman', True, '("Arquitecto","INTJ")', 'Afganistán', [True, '', '']],['2-0877-0176', 'KLen Barboza', True, '("Comandante","ENTJ")', 'Afganistán', [True, '', '']] ]
+#matrizUsuarios = []
+matrizUsuarios = [['2-0840-0626', 'Carlos Guzman', True, '("Arquitecto","INTJ")', 'Afganistán', [True, '', '']],['2-0877-0176', 'KLen Barboza', True, '("Comandante","ENTJ")', 'Afganistán', [True, '', '']] ]
 
 ###################################################################################
 # Definición de funciones
@@ -52,7 +52,7 @@ def validarNombre(pValidar):
     Entradas: pstringValidar (str) dato con el que se trabaja.
     Salidas: realimentar al usuario con la corrección de posibles errores o emitir el resultado correcto 
     """ #Encontré esta expresión regular para nombres propios en internet
-    if re.match("^([a-zA-Z]{2,}\\s[a-zA-z]{1,}'?-?[a-zA-Z]{2,}\\s?([a-zA-Z]{1,})?)", pValidar): 
+    if re.match("^([a-zA-Zá-úÁ-Ú]{2,}\s[a-zA-zá-úÁ-Ú]{1,}'?-?[a-zA-Zá-úÁ-Ú]{2,}\\s?([a-zA-Zá-úÁ-Ú]{1,})?)", pValidar): 
         return True          
     else:
         return False 
@@ -118,7 +118,7 @@ def cargarBaseDeDatos():
     #     crearAviso("Ocurrió un error, vuelva a intentarlo", inicio)
     # return  ""
 def cargarBDPaises(): 
-    leerPaises=lee("paises.txt")
+    #leerPaises=lee("paises.txt")
     f=open("paises.txt","r", encoding="utf-8")
     listaPais=[]
     listaQuince=[]
@@ -134,7 +134,7 @@ def cargarBDPaises():
     return listaQuince
 
 def cargarBDPersonalidades():
-    personalidadPrincipal=[]
+    #personalidadPrincipal=[]
     personalidadSecundaria=[]
     f=open("personalidades.txt","r", encoding="utf-8")
     diccioPersonali={}
@@ -280,11 +280,10 @@ def registrarUsuario():
     """
     Interfaz gráfica de la ventana respectiva
     """
-    print("\nRegistrar nuevo usuario")
-    # Check de si cargó BD
-    # if not listaPaises or not diccPersonalidades:
-    #     return crearAviso('Debe cargar las bases de datos', inicio)
-    # Setup de ventana
+    # Check de si cargó BD    
+    if not listaPaises or not diccPersonalidades:
+        crearAviso('Bases de Datos no cargadas.', inicio)
+        return ''        
     ventanaInsertar = Toplevel(inicio)      
     ventanaInsertar.grab_set()
     ventanaInsertar.resizable(False, False)
@@ -343,7 +342,10 @@ def registrarUsuario():
 
 #_________________________________________________________________________________# Boton 3
 def registrarDinamico(): 
-    print("\nRegistro dinámico")
+    # Check de si cargó BD    
+    if not listaPaises or not diccPersonalidades:
+        crearAviso('Bases de Datos no cargadas.', inicio)
+        return ''        
     ventanaRegistroDinamico = Toplevel(inicio)      # UTILIZAR PARA CREAR NUEVA VENTANA
     ventanaRegistroDinamico.grab_set()
     ventanaRegistroDinamico.resizable(False, False)
@@ -356,6 +358,13 @@ def registrarDinamico():
    
 
 def actualizarDatos(ventana, numeroUsuario, personalidad):
+    try:    
+        matrizUsuarios[numeroUsuario][3]=personalidad
+        ventana.destroy()
+        print(f"\n_________________________________________________________________________________\nInformación de usuario actualizada: {matrizUsuarios[numeroUsuario]}")
+        crearAviso("Información actualizada", inicio)
+    except:
+        crearAviso("Ocurrió un error, vuelva a intentarlo", None)       
     return ""
 
 def interfazModificar(numeroUsuario):
@@ -364,10 +373,10 @@ def interfazModificar(numeroUsuario):
     ventanaModificar.grab_set()
     ventanaModificar.resizable(False, False)
     ventanaModificar.title('Registrar un nuevo usuario')
-    ventanaModificar.geometry('550x350')
+    ventanaModificar.geometry('550x250')
     ventanaModificar.configure(bg='white')
     # Encabezado
-    encabezadoInsertar = Label(ventanaModificar, text="Registrar un nuevo usuario", font=("Calibri 20"),bg='white')
+    encabezadoInsertar = Label(ventanaModificar, text="Modificar usuario", font=("Calibri 20"),bg='white')
     encabezadoInsertar.grid(row=0, column=0, columnspan=2 ,padx=20, pady=5)
     # Entrada de cédula
     cedulaTexto = Label(ventanaModificar,text="Cédula",font="Calibri 16",bg='white')
@@ -387,16 +396,16 @@ def interfazModificar(numeroUsuario):
     personalidadTexto = Label(ventanaModificar,text="Personalidad",font="Calibri 16",bg='white')
     personalidadTexto.grid(row=5,column=0,padx=5,pady=10)      
     personalidad = StringVar(value=matrizUsuarios[numeroUsuario][3])
-    personalidadSelect = OptionMenu(ventanaModificar,personalidad, listaPersonalidades)
+    personalidadSelect = OptionMenu(ventanaModificar,personalidad, *listaPersonalidades)
     personalidadSelect.config(width=50)
     personalidadSelect.grid(row=5,column=1,padx=0,pady=5)
     # Botones
-    insertar = Button(ventanaModificar, text="Insertar", width=20, height=2, bg='#ffffbf', command=lambda: almacernarDatos(ventanaModificar,personalidad.get()))
-    limpiar = Button(ventanaModificar, text="Limpiar", width=20, height=2, bg='#b8daba', command=lambda: refrescarVentana(ventanaModificar, lambda:registrarUsuario()))
+    insertar = Button(ventanaModificar, text="Insertar", width=20, height=2, bg='#ffffbf', command=lambda: actualizarDatos(ventanaModificar,numeroUsuario,personalidad.get())) # actualizarDatos(ventana, numeroUsuario, personalidad)
+    limpiar = Button(ventanaModificar, text="Limpiar", width=20, height=2, bg='#b8daba', command=lambda: refrescarVentana(ventanaModificar, lambda:interfazModificar(numeroUsuario)))
     regresar = Button(ventanaModificar, text="Regresar", width=20, height=2, bg='#deb1bf', command=lambda: ventanaModificar.destroy())
-    insertar.place(x = 25, y = 300)
-    limpiar.place(x = 200, y = 300)
-    regresar.place(x = 375, y = 300)   
+    insertar.place(x = 25, y = 200)
+    limpiar.place(x = 200, y = 200)
+    regresar.place(x = 375, y = 200)   
     return
 
 def puenteModificar(ventana, cedula):
@@ -419,7 +428,10 @@ def puenteModificar(ventana, cedula):
     return ""     
 
 def modificarUsuario(): 
-    print("\nModificar información de usuario")
+    # Check de si cargó BD    
+    if not listaPaises or not diccPersonalidades:
+        crearAviso('Bases de Datos no cargadas.', inicio)
+        return ''        
     ventanaModificar = Toplevel(inicio)      
     ventanaModificar.grab_set()
     ventanaModificar.resizable(False, False)
@@ -445,17 +457,26 @@ def modificarUsuario():
 
 #_________________________________________________________________________________# Boton 5
 def eliminarUsuario(): 
-    print("\nEliminar usuario")
+    # Check de si cargó BD    
+    if not listaPaises or not diccPersonalidades:
+        crearAviso('Bases de Datos no cargadas.', inicio)
+        return ''        
     return
 
 #_________________________________________________________________________________# Boton 6
 def exportarXML(): 
-    print("\nExportar XML")
+    # Check de si cargó BD    
+    if not listaPaises or not diccPersonalidades:
+        crearAviso('Bases de Datos no cargadas.', inicio)
+        return ''        
     return
 
 #_________________________________________________________________________________# Boton 7
 def reportes(): 
-    print("\nGenerar Reportes")
+    # Check de si cargó BD    
+    if not listaPaises or not diccPersonalidades:
+        crearAviso('Bases de Datos no cargadas.', inicio)
+        return ''        
     return
 
 
