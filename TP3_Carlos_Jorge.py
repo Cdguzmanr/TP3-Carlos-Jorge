@@ -15,8 +15,8 @@ import pickle
 listaPaises = []    # Aquí se almacenará la información de los archivos txt
 diccPersonalidades = {}
 listaPersonalidades = []
-#matrizUsuarios = []
-matrizUsuarios = [['2-0840-0626', 'Carlos Guzman', True, '("Arquitecto","INTJ")', 'Afganistán', [True, '', '']],['2-0877-0176', 'KLen Barboza', True, '("Comandante","ENTJ")', 'Afganistán', [True, '', '']] ]
+matrizUsuarios = []
+#matrizUsuarios = [['2-0840-0626', 'Carlos Guzman', True, '("Arquitecto","INTJ")', 'Afganistán', [True, '', '']],['2-0877-0176', 'KLen Barboza', True, '("Comandante","ENTJ")', 'Afganistán', [True, '', '']] ]
 
 ###################################################################################
 # Definición de funciones
@@ -173,6 +173,13 @@ class Usuario:
         """
         self.cedula= pcedula
         return
+    def mostrarCedula(self):
+        """
+        Funcionamiento: Muestra la cédula a un usuario
+        Entradas: self (str)
+        Salidas: muestra la cédula del usuario
+        """
+        return self.cedula 
     def asignarNombre(self, pnombre):
         """
         Funcionamiento: Asigna el nombre a un usuario
@@ -181,6 +188,13 @@ class Usuario:
         """        
         self.nombre= pnombre
         return
+    def mostrarNombre(self):
+        """
+        Funcionamiento: Muestra el nombre a un usuario
+        Entradas: self (str)
+        Salidas: muestra el nombre del usuario
+        """
+        return self.nombre        
     def asignarGenero(self, pgenero):
         """
         Funcionamiento: Asigna el genero a un usuario
@@ -192,6 +206,13 @@ class Usuario:
         else:
             self.genero= False            
         return
+    def mostrarGenero(self):
+        """
+        Funcionamiento: Muestra el genero a un usuario
+        Entradas: self (str)
+        Salidas: muestra el genero del usuario
+        """
+        return self.genero          
     def asignarPersonalidad(self, ppersonalidad):
         """
         Funcionamiento: Asigna la personalidad a un usuario
@@ -200,6 +221,13 @@ class Usuario:
         """                  
         self.personalidad= ppersonalidad
         return
+    def mostrarPersonalidad(self):
+        """
+        Funcionamiento: Muestra la personalidad a un usuario
+        Entradas: self (str)
+        Salidas: muestra la personalidad del usuario
+        """
+        return self.personalidad          
     def asignarPais(self, ppais):
         """
         Funcionamiento: Asigna el pais a un usuario
@@ -208,6 +236,13 @@ class Usuario:
         """                 
         self.pais= ppais
         return
+    def mostrarPais(self):
+        """
+        Funcionamiento: Muestra el pais a un usuario
+        Entradas: self (str)
+        Salidas: muestra el pais del usuario
+        """
+        return self.pais          
     def asignarEstado(self, pestado):
         """
         Funcionamiento: Asigna el estado a un usuario
@@ -215,7 +250,14 @@ class Usuario:
         Salidas: Asigna el estado al atributo "estado"
         """           
         self.estado= pestado
-        return                                
+        return          
+    def mostrarEstado(self):
+        """
+        Funcionamiento: Muestra el estado a un usuario
+        Entradas: self (str)
+        Salidas: muestra el estado del usuario
+        """
+        return self.estado                                
     def exportarUsuario(self): # Impresión general
         """
         Funcionamiento: Exporta los datos ingresados del usuario en formato de lista
@@ -268,7 +310,7 @@ def almacernarDatos(ventana, cedula, nombre, genero, personalidad, pais):
             usuario.asignarPersonalidad(personalidad)
             usuario.asignarPais(pais)
             usuario.asignarEstado([True, "", ""])
-            matrizUsuarios.append(usuario.exportarUsuario())
+            matrizUsuarios.append(usuario)
             print(f"\n_________________________________________________________________________________\nUsuarios almacenados: {matrizUsuarios}")
             ventana.destroy()
             crearAviso("Información almacenada con éxito", inicio)
