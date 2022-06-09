@@ -270,7 +270,7 @@ def ingresarCedula(ventana, cedula):
     if not validarCedulas(cedula):
         crearAviso("Cédula inválida, debe seguir el formato #-####-####", ventana)
         return False   
-    elif cedula in [dato[0] for dato in matrizUsuarios]:
+    elif cedula in [dato.mostrarCedula() for dato in matrizUsuarios]:
         crearAviso("Esta cédula ya se encuentra registrada", ventana)
         return False        
     return True
@@ -401,10 +401,15 @@ def registrarDinamico():
 
 def actualizarDatos(ventana, numeroUsuario, personalidad):
     try:    
-        matrizUsuarios[numeroUsuario][3]=personalidad
-        ventana.destroy()
-        print(f"\n_________________________________________________________________________________\nInformación de usuario actualizada: {matrizUsuarios[numeroUsuario]}")
-        crearAviso("Información actualizada", inicio)
+        if matrizUsuarios[numeroUsuario].mostrarPersonalidad()==personalidad:
+            crearAviso("Debe seleccionar una personalidad diferente", None)   
+            return
+        else:       
+            print(f"\n_________________________________________________________________________________\nInformación de usuario actualizada: {matrizUsuarios[numeroUsuario].mostrarCedula()}\nAnterior personalidad: {matrizUsuarios[numeroUsuario].mostrarPersonalidad()}")            
+            matrizUsuarios[numeroUsuario].asignarPersonalidad(personalidad)
+            ventana.destroy()
+            print(f"Nueva personalidad: {matrizUsuarios[numeroUsuario].mostrarPersonalidad()}")
+            crearAviso("Información actualizada", inicio)
     except:
         crearAviso("Ocurrió un error, vuelva a intentarlo", None)       
     return ""
@@ -424,20 +429,20 @@ def interfazModificar(numeroUsuario):
     cedulaTexto = Label(ventanaModificar,text="Cédula",font="Calibri 16",bg='white')
     cedulaTexto.grid(row=1,column=0,padx=5,pady=5)                           
     cedulaEntrada = Text(ventanaModificar,height=1,width=40,bg = 'lightblue') # command=lambda: seleccionarTipo(ventanaModificar, fechaEntrada, botonAdulto, botonVoluntario)
-    cedulaEntrada.insert('1.0',matrizUsuarios[numeroUsuario][0])
+    cedulaEntrada.insert('1.0',matrizUsuarios[numeroUsuario].mostrarCedula())
     cedulaEntrada.config(state=DISABLED)
     cedulaEntrada.grid(row=1,column=1,padx=10,pady=5)
     #Nombre Completo
     nombreTexto = Label(ventanaModificar,text="Nombre completo",font="Calibri 16",bg='white')
     nombreTexto.grid(row=2,column=0,padx=0,pady=5)
     nombreEntrada = Text(ventanaModificar,height=1,width=40,bg = 'lightblue')
-    nombreEntrada.insert('1.0',matrizUsuarios[numeroUsuario][1])
+    nombreEntrada.insert('1.0',matrizUsuarios[numeroUsuario].mostrarNombre())
     nombreEntrada.config(state=DISABLED)
     nombreEntrada.grid(row=2,column=1,padx=0,pady=5)  
     # Personalidad
     personalidadTexto = Label(ventanaModificar,text="Personalidad",font="Calibri 16",bg='white')
     personalidadTexto.grid(row=5,column=0,padx=5,pady=10)      
-    personalidad = StringVar(value=matrizUsuarios[numeroUsuario][3])
+    personalidad = StringVar(value=matrizUsuarios[numeroUsuario].mostrarPersonalidad())
     personalidadSelect = OptionMenu(ventanaModificar,personalidad, *listaPersonalidades)
     personalidadSelect.config(width=50)
     personalidadSelect.grid(row=5,column=1,padx=0,pady=5)
@@ -456,17 +461,14 @@ def puenteModificar(ventana, cedula):
         print(f"\nDatos de ingreso: '{cedula}'")
         crearAviso("Cédula inválida, debe seguir el formato #-####-####", ventana)
         return "" 
-    elif cedula not in [dato[0] for dato in matrizUsuarios]:
-        crearAviso("Esta cédula no se encuentra registrada", ventana)
-        return ""
-    else:  
-        contador = 0
-        while contador<len(matrizUsuarios):
-            if matrizUsuarios[contador][0]==cedula:
-                ventana.destroy()
-                interfazModificar(contador)                
-                return ""
-            contador+=1
+    for persona in range(len(matrizUsuarios)):
+        #print(f"Persona; {persona}\n{persona.mostrarCedula()}")
+        if matrizUsuarios[persona].mostrarCedula()==cedula:
+            ventana.destroy()
+            print(f"\n_________________________________________________________________________________\nUsuario consultado: {matrizUsuarios[persona].exportarUsuario()}")                        
+            interfazModificar(persona)                
+            return ""
+    crearAviso("Esta cédula no se encuentra registrada", ventana)
     return ""     
 
 def modificarUsuario(): 
