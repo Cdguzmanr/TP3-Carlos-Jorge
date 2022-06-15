@@ -6,6 +6,7 @@
 #######################################################
 
 # Importación de Librerias
+from http.client import FORBIDDEN
 from tkinter import *
 import re
 import random
@@ -101,6 +102,12 @@ def lee (nomArchLeer):
 
 ###################################################################################
 # Funciones Principales
+def generarPersonalidades():
+    global listaPersonalidades
+    for categoria in diccPersonalidades:
+        for titulo in diccPersonalidades[categoria]:
+            listaPersonalidades.append((f"{categoria}-{titulo[0]}"))
+    return ""
 
 #_________________________________________________________________________________# Boton 1
 def cargarBaseDeDatos():
@@ -114,7 +121,7 @@ def cargarBaseDeDatos():
     print(f"\n_____________________________________\nDiccionario de personalidades generado: \n{diccPersonalidades}")
     print(f"\n_____________________________________\nLista de personalidades generada: \n{listaPersonalidades}")
     
-    crearAviso("Base de datos generada", inicio)
+    #crearAviso("Base de datos generada", inicio)
     # except:
     #     crearAviso("Ocurrió un error, vuelva a intentarlo", inicio)
     # return  ""
@@ -135,19 +142,19 @@ def cargarBDPaises():
     return listaQuince
 
 def cargarBDPersonalidades():
-    #personalidadPrincipal=[]
+   #personalidadPrincipal=[]
     personalidadSecundaria=[]
     f=open("personalidades.txt","r", encoding="utf-8")
     diccioPersonali={}
-    for linea in f.readlines():
+    for linea in f.readlines()[::-1]:
         if linea[0]=="-":
             diccioPersonali.update({linea[1:-1]:personalidadSecundaria})
-            personalidadSecundaria=[]        
+            personalidadSecundaria=[]
         elif linea[0]=="*":
             personalidadSecundaria.append((linea[1:-6],linea[-5:-1]))
-    f.close()        
+    f.close()
     return diccioPersonali
-
+print(cargarBaseDeDatos())
 #_________________________________________________________________________________# Boton 2
 class Usuario:
     """ Definición de atributos """
@@ -282,12 +289,7 @@ def ingresarNombre(ventana, nombre):
         return False      
     return True
 
-def generarPersonalidades():
-    global listaPersonalidades
-    for categoria in diccPersonalidades:
-        for titulo in diccPersonalidades[categoria]:
-            listaPersonalidades.append((f"{categoria}-{titulo[0]}"))
-    return ""
+
 
 def almacernarDatos(ventana, cedula, nombre, genero, personalidad, pais):
     if not ingresarCedula(ventana, cedula):
@@ -412,17 +414,36 @@ def registrarUsuario():
     return
 
 #_________________________________________________________________________________# Boton 3
-def registrarDinamico(): 
+def registrarDinamico(participantesGenerados): 
     # Check de si cargó BD    
     if not listaPaises or not diccPersonalidades:
         crearAviso('Bases de Datos no cargadas.', inicio)
         return ''        
-    ventanaRegistroDinamico = Toplevel(inicio)      # UTILIZAR PARA CREAR NUEVA VENTANA
-    ventanaRegistroDinamico.grab_set()
-    ventanaRegistroDinamico.resizable(False, False)
-    ventanaRegistroDinamico.title('Registrar un nuevo usuario')
-    ventanaRegistroDinamico.geometry('550x350')
-    ventanaRegistroDinamico.configure(bg='white')    
+    for i in range(participantesGenerados):
+        ParticipanteOpp=Usuario()
+        cedula=""
+        nombre=""
+        genero=False
+        estado=[]
+        cedula=str(random.randint(1,9)),"-",str(random.randint(0,9999)).zfill(4),"-",str(random.randint(0,9999)).zfill(4)
+        nombre=names.get_first_name()," ",names.get_last_name(),"-",names.get_last_name()
+        genero=random.randint(0,1)
+        if genero==1:
+            genero=False
+        else:
+            genero=True
+        personalidad=(random.randint(0,3),random.randint(0,3))
+        pais=random.randint(0,193)
+        ParticipanteOpp.asignarCedula(cedula)
+        ParticipanteOpp.asignarNombre(nombre)
+        ParticipanteOpp.asignarGenero(genero)
+        ParticipanteOpp.asignarPersonalidad(personalidad)
+        ParticipanteOpp.asignarPais(pais)
+        ParticipanteOpp.asignarEstado([True, "", ""])
+        
+        print(ParticipanteOpp.exportarUsuario())
+        matrizUsuarios.append(ParticipanteOpp)
+        
     return
 
 #_________________________________________________________________________________# Boton 4
@@ -533,7 +554,7 @@ def eliminarUsuario():
         crearAviso('Bases de Datos no cargadas.', inicio)
         return ''        
     return
-
+    
 #_________________________________________________________________________________# Boton 6
 def exportarXML(): 
     # Check de si cargó BD    
@@ -564,7 +585,7 @@ titulo.grid(row=0, column=0, padx=80, pady=10)
 # Botones
 boton1 = Button(inicio, text="Cargar Bases de Datos", width=65, height=3, bg="#ffffbf", command=cargarBaseDeDatos)
 boton2 = Button(inicio, text="Registrar usuario nuevo", width=65, height=3, bg='#ffffbf', command=registrarUsuario)
-boton3 = Button(inicio, text="Registro dinámico", width=65, height=3, bg='#c5e2f6', command=registrarDinamico)
+boton3 = Button(inicio, text="Registro dinámico", width=65, height=3, bg='#c5e2f6', command=lambda:registrarDinamico(5))
 boton4 = Button(inicio, text="Modificar datos de usuario", width=65, height=3, bg='#c5e2f6', command=modificarUsuario)
 boton5 = Button(inicio, text="Eliminar usuario", width=65, height=3, bg='#b8daba', command=eliminarUsuario)
 boton6 = Button(inicio, text="Exportar XML", width=65, height=3, bg='#b8daba', command=exportarXML) 
