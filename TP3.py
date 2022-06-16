@@ -12,6 +12,7 @@ import re
 import random
 import pickle
 import names
+import datetime
 
 # Definción de Variables Globales
 listaPaises = []    # Aquí se almacenará la información de los archivos txt
@@ -447,6 +448,7 @@ def registrarDinamico(participantesGenerados):
     return
 
 #_________________________________________________________________________________# Boton 4
+
    
 
 def actualizarDatos(ventana, numeroUsuario, personalidad):
@@ -554,7 +556,18 @@ def eliminarUsuario():
         crearAviso('Bases de Datos no cargadas.', inicio)
         return ''        
     return
-    
+def eliminarUsuarios(cedula,justificar):
+    eliminar=""
+    for participante in matrizUsuarios:
+        if participante.mostrarCedula()==cedula:
+            eliminar=input("¿Desea eliminar sus datos?")
+            if eliminar=="si":
+                participante.asignarEstado([False,justificar,datetime.datetime.now()])
+                print("Su estado ha sido modificado.")
+            else:
+                print("El estado no se ha modificado.")
+    return
+print(eliminarUsuarios())     
 #_________________________________________________________________________________# Boton 6
 def exportarXML(): 
     # Check de si cargó BD    
