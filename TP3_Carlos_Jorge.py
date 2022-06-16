@@ -1,7 +1,7 @@
 #######################################################
 #Creado por: Carlos Guzmán, Jorge Guevara
 #Fecha de creación: 30/05/2022 5:15 pm
-#Última modificación: 16/6/2022 10:00 pm 
+#Última modificación: 16/6/2022 12:00 pm 
 #Versión de python: 3.10.2
 #######################################################
 
@@ -13,6 +13,9 @@ import random
 import pickle
 import names
 import xml.etree.cElementTree as ET
+from http.client import FORBIDDEN
+import datetime
+
 
 # Definción de Variables Globales
 listaPaises = []    # Aquí se almacenará la información de los archivos txt
@@ -284,11 +287,16 @@ class Usuario:
         """             
         return [self.cedula,self.nombre,self.genero,self.personalidad,self.pais,self.estado]
 
+def buscarCedula(cedula):
+    if cedula in [dato.mostrarCedula() for dato in matrizUsuarios]:
+        return True    
+    return False
+
 def ingresarCedula(ventana, cedula):
     if not validarCedulas(cedula):
         crearAviso("Cédula inválida, debe seguir el formato #-####-####", ventana)
         return False   
-    elif cedula in [dato.mostrarCedula() for dato in matrizUsuarios]:
+    elif buscarCedula(cedula):
         crearAviso("Esta cédula ya se encuentra registrada", ventana)
         return False        
     return True
@@ -407,15 +415,15 @@ def registrarUsuario():
 #_________________________________________________________________________________# Boton 3
 def insertarDinamico(participantesGenerados, ventanaRegistroDinamico): 
     # Check de si cargó BD    
-    if not listaPaises or not diccPersonalidades:
-        crearAviso('Bases de Datos no cargadas.', inicio)
-        return ''   
-    elif not re.match('[0-9]{1,}', participantesGenerados):
+    if re.search('\D', participantesGenerados):
         crearAviso('Entrada debe ser numérica.', None)
         return ''
     elif int(participantesGenerados) < 25:
         crearAviso('Entrada debe ser mayor a 25.', None)
         return ''        
+    elif int(participantesGenerados) > 99:
+        crearAviso('Debe ingresar un valor menor a 99.', None)
+        return ''
     print("\n\n_____________________________________\nLista de usuarios actualizada:")            
     try:     
         for i in range(int(participantesGenerados)):
@@ -425,7 +433,7 @@ def insertarDinamico(participantesGenerados, ventanaRegistroDinamico):
             genero=False
             estado=[True, "", ""]
             cedula=str(random.randint(1,9))+"-"+str(random.randint(0,9999)).zfill(4)+"-"+str(random.randint(0,9999)).zfill(4)
-            nombre=names.get_first_name()+" "+names.get_last_name()+"-"+names.get_last_name()
+            nombre=names.get_first_name()+" "+names.get_last_name()+" "+names.get_last_name()
             genero=random.randint(0,1)
             if genero==1:
                 genero=False
@@ -439,7 +447,6 @@ def insertarDinamico(participantesGenerados, ventanaRegistroDinamico):
             ParticipanteOpp.asignarPersonalidad(personalidad)
             ParticipanteOpp.asignarPais(pais)
             ParticipanteOpp.asignarEstado(estado)
-            #print(ParticipanteOpp.exportarUsuario())
             matrizUsuarios.append(ParticipanteOpp)
         print(matrizUsuarios)            
         print(f"\nEjemplo del formato almacenado: \n{random.choice(matrizUsuarios).exportarUsuario()}")
@@ -477,6 +484,7 @@ def registrarDinamico():
 #_________________________________________________________________________________# Boton 4
 def actualizarDatos(ventana, numeroUsuario, personalidad, personalidadMostrada):
     try:    
+        global matrizUsuarios
         if personalidadMostrada==personalidad:
             crearAviso("Debe seleccionar una personalidad diferente", None)   
             return
@@ -528,8 +536,6 @@ def interfazModificar(numeroUsuario):
     personalidadTexto = Label(ventanaModificar,text="Personalidad",font="Calibri 16",bg='white')
     personalidadTexto.grid(row=5,column=0,padx=5,pady=10)      
     personalidadMostrada = personalidadAnterior(numeroUsuario)
-    #personalidadMostrada = matrizUsuarios[numeroUsuario].mostrarPersonalidad()
-    # personalidad = StringVar(value=personalidadMostrada)
     personalidad = StringVar(value=personalidadMostrada)    
     personalidadSelect = OptionMenu(ventanaModificar,personalidad, *listaPersonalidades)
     personalidadSelect.config(width=50)
@@ -550,7 +556,6 @@ def puenteModificar(ventana, cedula):
         crearAviso("Cédula inválida, debe seguir el formato #-####-####", ventana)
         return "" 
     for persona in range(len(matrizUsuarios)):
-        #print(f"Persona; {persona}\n{persona.mostrarCedula()}")
         if matrizUsuarios[persona].mostrarCedula()==cedula:
             ventana.destroy()
             print(f"\n_________________________________________________________________________________\nUsuario consultado: {matrizUsuarios[persona].exportarUsuario()}")                        
@@ -591,11 +596,81 @@ def modificarUsuario():
     return
 
 #_________________________________________________________________________________# Boton 5
+def momentoEliminado():
+    tiempoActual = datetime.datetime.now()
+    return f"{tiempoActual.day}/{tiempoActual.month}/{tiempoActual.year}"
+
+def eliminarUsuarios(cedula,justificar):
+    global matrizUsuarios
+    for participante in matrizUsuarios:
+        if participante.mostrarCedula()==cedula:
+            participante.asignarEstado([False,justificar,momentoEliminado()])
+            print(f"\n_________________________________________________________________________________\nSe ha cambiado el estado del usuario a 'inactivo': \n{participante.exportarUsuario()}")                        
+            return ""
+    return ""
+def insertarRazonBaja(cedula):
+    # Setup de ventana
+    ventanaRazon = Toplevel(inicio)
+    ventanaRazon.grab_set()
+    ventanaRazon.title('Presentar razón de baja')
+    ventanaRazon.geometry('400x150')
+    ventanaRazon.configure(bg='white')
+    encabezado = Label(ventanaRazon, text='Presente la razón de baja.', font="Calibri 12",bg='white')
+    encabezado.pack()
+    razonEntrada =  Text(ventanaRazon,height=2,width=40,bg = 'lightblue')
+    razonEntrada.pack()
+    botonConfirmar = Button(ventanaRazon, text="Ok", width=40, height=1, bg='aliceblue', command=lambda: eliminarUsuarios(cedula, razonEntrada.get('1.0', 'end-1c')) or crearAviso('Participante desactivado exitosamente.', inicio) or ventanaRazon.destroy())
+    botonConfirmar.pack()
+    razonEntrada.bind('<Return>', lambda evento:eliminarUsuarios(cedula, razonEntrada.get('1.0', 'end-1c')) or crearAviso('Participante desactivado exitosamente.', inicio) or ventanaRazon.destroy())
+    return ''
+
+def confirmarBaja(cedula):
+    # Setup de ventana
+    ventanaConfirmar = Toplevel(inicio)
+    ventanaConfirmar.grab_set()
+    ventanaConfirmar.title('Confirmar elección')
+    ventanaConfirmar.geometry('400x150')
+    ventanaConfirmar.configure(bg='white')
+    encabezado = Label(ventanaConfirmar, text='¿Estás seguro?', font="Calibri 12",bg='white')
+    encabezado.pack()
+    botonAceptar = Button(ventanaConfirmar, text="Aceptar", width=40, height=1, bg='#b8daba', command=lambda:insertarRazonBaja(cedula) or ventanaConfirmar.destroy())
+    botonAceptar.pack()
+    botonRegresar = Button(ventanaConfirmar, text='Regresar', width=40, height=1, bg='#deb1bf', command=lambda: crearAviso('No se eliminó el participante.', inicio) or ventanaConfirmar.destroy())
+    botonRegresar.pack()
+
+def intentarBajar(cedula, ventana):
+    if not validarCedulas(cedula):
+        crearAviso("Cédula inválida, debe seguir el formato #-####-####", None)
+        return ""  
+    elif not buscarCedula(cedula):
+        crearAviso('Ese participante no existe.', None)
+        return ''
+    confirmarBaja(cedula)
+    ventana.destroy()
+    return ''    
+
 def eliminarUsuario(): 
     # Check de si cargó BD    
     if not listaPaises or not diccPersonalidades:
         crearAviso('Bases de Datos no cargadas.', inicio)
-        return ''        
+        return '' 
+    # Setup de ventana
+    ventanaEliminar = Toplevel(inicio)
+    ventanaEliminar.grab_set()
+    ventanaEliminar.title('Eliminar Usuario')
+    ventanaEliminar.geometry('400x150')
+    ventanaEliminar.configure(bg='white')
+    encabezado = Label(ventanaEliminar, text='Numero de cédula', font="Calibri 12",bg='white')
+    entradaCedula = Text(ventanaEliminar,height=1,width=40,bg = 'lightblue')
+    encabezado.pack()
+    entradaCedula.pack()
+    botonBaja = Button(ventanaEliminar, text="Continuar", width=40, height=1, bg='#ffffbf', command=lambda: intentarBajar(entradaCedula.get('1.0', 'end-1c'), ventanaEliminar))
+    botonBaja.pack()
+    botonLimpiar = Button(ventanaEliminar, text="Limpiar", width=40, height=1, bg='#b8daba', command=lambda: refrescarVentana(ventanaEliminar, lambda: eliminarUsuario()))
+    botonLimpiar.pack()
+    botonRegresar = Button(ventanaEliminar, text='Regresar', width=40, height=1, bg='#deb1bf', command=lambda: ventanaEliminar.destroy())
+    botonRegresar.pack()
+    entradaCedula.bind('<Return>', lambda evento: intentarBajar(entradaCedula.get('1.0', 'end-1c'), ventanaEliminar) )               
     return
 
 #_________________________________________________________________________________# Boton 6
@@ -604,20 +679,18 @@ def exportarXML():
     if not listaPaises or not diccPersonalidades:
         crearAviso('Bases de Datos no cargadas.', inicio)
         return ''    
-    # print("\n\n_______")
     root = ET.Element("personalidades")
     for columna in diccPersonalidades:
-        # print(f"    #{columna}")
         tipo = ET.SubElement(root, "", tipo=f"{columna}") # tipo="Analista"
         contador = 1
         ET.SubElement(tipo, "descripción").text=f"{descripcionPersonalidad[contador-1]}"        
         for linea in diccPersonalidades[columna]:
-            # print(f"--{linea[0]} --- {linea[1]}")
             ET.SubElement(tipo, f"subtipo{contador}").text=f"{linea[0]}"
             ET.SubElement(tipo, f"codigo{contador}").text=f"{linea[1]}"
             contador+=1            
     archivo = ET.ElementTree(root)
     archivo.write("archivo.xml", encoding="utf-8")
+    crearAviso('Archivo XML exportado con éxito', None)
     return
 
 #_________________________________________________________________________________# Boton 7
@@ -648,7 +721,7 @@ boton5 = Button(inicio, text="Eliminar usuario", width=65, height=3, bg='#b8daba
 boton6 = Button(inicio, text="Exportar XML", width=65, height=3, bg='#b8daba', command=exportarXML) 
 boton7 = Button(inicio, text="Reportes", width=65, height=3, bg='#deb1bf', command=reportes)
 boton8 = Button(inicio, text="Salir", width=65, height=3, bg='#deb1bf', command=inicio.destroy) # "inicio.destroy" Permite cerrar la inicio
-# Edición de los botones                                    # #ffffbf   #c5e2f6    #b8daba  #deb1bf
+# Edición de los botones                                  
 boton1.grid(row=1, column=0, padx=20, pady=5)
 boton2.grid(row=2, column=0, padx=20, pady=5)
 boton3.grid(row=3, column=0, padx=20, pady=5)
