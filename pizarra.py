@@ -1,0 +1,3 @@
+listaPaises = ['Mauritania (República Islámica de Mauritania).', 'Bolivia (Estado Plurinacional de Bolivia).', 'Ucrania (Ucrania).', 'Turkmenistán (Turkmenistán).', 'Azerbaiyán (República de Azerbaiyán).', 'Barbados (Barbados).', 'Namibia (República de Namibia).', 'Georgia (Georgia).', 'Serbia (República de Serbia).', 'Jamaica (Jamaica).', 'San Cristóbal y Nieves (Federación de San Cristóbal y Nieves).', 'México (Estados Unidos Mexicanos).', 'Venezuela (República Bolivariana de Venezuela).', 'Guyana (República Cooperativa de Guyana).', 'Honduras (República de Honduras).']
+
+print(listaPaises.index('Bolivia (Estado Plurinacional de Bolivia).')) 
