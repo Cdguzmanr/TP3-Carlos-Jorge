@@ -16,7 +16,6 @@ import xml.etree.cElementTree as ET
 from http.client import FORBIDDEN
 import datetime
 
-
 # Definción de Variables Globales
 listaPaises = []    # Aquí se almacenará la información de los archivos txt
 diccPersonalidades = {}
@@ -341,7 +340,7 @@ def almacernarDatos(ventana, cedula, nombre, genero, personalidad, pais):
             usuario.asignarNombre(nombre)
             usuario.asignarGenero(genero)
             usuario.asignarPersonalidad(ingresarPersonalidad(personalidad))
-            usuario.asignarPais(pais)
+            usuario.asignarPais(listaPaises.index(pais))
             usuario.asignarEstado([True, "", ""])
             matrizUsuarios.append(usuario)
             print(f"\n_________________________________________________________________________________\nUsuarios almacenados: {matrizUsuarios}")
@@ -440,7 +439,7 @@ def insertarDinamico(participantesGenerados, ventanaRegistroDinamico):
             else:
                 genero=True
             personalidad=(random.randint(0,3),random.randint(0,3))
-            pais=random.choice(listaPaises)
+            pais=random.randint(0,15)
             ParticipanteOpp.asignarCedula(cedula)
             ParticipanteOpp.asignarNombre(nombre)
             ParticipanteOpp.asignarGenero(genero)
@@ -466,6 +465,7 @@ def registrarDinamico():
     ventanaRegistroDinamico.grab_set()
     ventanaRegistroDinamico.title('Registro Dinámico')
     ventanaRegistroDinamico.geometry('400x150')
+    ventanaRegistroDinamico.resizable(False, False)    
     ventanaRegistroDinamico.configure(bg='white')
     encabezado = Label(ventanaRegistroDinamico, text='Ingrese cantidad a generar', font="Calibri 16",bg='white')
     encabezado.pack()
@@ -614,6 +614,7 @@ def insertarRazonBaja(cedula):
     ventanaRazon.grab_set()
     ventanaRazon.title('Presentar razón de baja')
     ventanaRazon.geometry('400x150')
+    ventanaRazon.resizable(False, False) 
     ventanaRazon.configure(bg='white')
     encabezado = Label(ventanaRazon, text='Presente la razón de baja.', font="Calibri 12",bg='white')
     encabezado.pack()
@@ -630,6 +631,7 @@ def confirmarBaja(cedula):
     ventanaConfirmar.grab_set()
     ventanaConfirmar.title('Confirmar elección')
     ventanaConfirmar.geometry('400x150')
+    ventanaConfirmar.resizable(False, False) 
     ventanaConfirmar.configure(bg='white')
     encabezado = Label(ventanaConfirmar, text='¿Estás seguro?', font="Calibri 12",bg='white')
     encabezado.pack()
@@ -659,6 +661,7 @@ def eliminarUsuario():
     ventanaEliminar.grab_set()
     ventanaEliminar.title('Eliminar Usuario')
     ventanaEliminar.geometry('400x150')
+    ventanaEliminar.resizable(False, False) 
     ventanaEliminar.configure(bg='white')
     encabezado = Label(ventanaEliminar, text='Numero de cédula', font="Calibri 12",bg='white')
     entradaCedula = Text(ventanaEliminar,height=1,width=40,bg = 'lightblue')
@@ -699,6 +702,21 @@ def reportes():
     if not listaPaises or not diccPersonalidades:
         crearAviso('Bases de Datos no cargadas.', inicio)
         return ''        
+    ventanaReportes = Toplevel(inicio)
+    ventanaReportes.grab_set()
+    ventanaReportes.title('Menú de reportes')
+    ventanaReportes.geometry('400x450')
+    ventanaReportes.resizable(False, False) 
+    ventanaReportes.configure(bg='white')
+    encabezado = Label(ventanaReportes, text='Reportes', font="Calibri 16",bg='white')
+    encabezado.pack()
+    boton1=Button(ventanaReportes, text="Personalidades", width=50, height=3, bg='#ffffbf').place(x=20, y=40)
+    boton2=Button(ventanaReportes, text="Tipos de Personalidad", width=50, height=3, bg='#ffffbf').place(x=20, y=105) # 65 +
+    boton3=Button(ventanaReportes, text="Información de Usuario", width=50, height=3, bg='#c5e2f6').place(x=20, y=170)
+    boton4=Button(ventanaReportes, text="Mostrar Base de Datos", width=50, height=3, bg='#c5e2f6').place(x=20, y=235)
+    boton5=Button(ventanaReportes, text="Usuarios Retirados", width=50, height=3, bg='#b8daba').place(x=20, y=235)
+    boton6=Button(ventanaReportes, text="Paises", width=50, height=3, bg='#b8daba').place(x=20, y=300)
+    boton7=Button(ventanaReportes, text="Regresar", width=50, height=3, bg='#deb1bf', command=ventanaReportes.destroy).place(x=20, y=365)    
     return
 
 
