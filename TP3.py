@@ -703,6 +703,10 @@ def reportes():
     # Check de si cargó BD    
     #if not listaPaises or not diccPersonalidades:
         #crearAviso('Bases de Datos no cargadas.', inicio)
+    tiempoActual = datetime.datetime.now()
+    tiempoActual = f"{tiempoActual.day}-{tiempoActual.month}-{tiempoActual.year}-{tiempoActual.hour}-{tiempoActual.minute}-{tiempoActual.second}"       
+    nombreArchivo = f'Reportes-{tiempoActual}.html'
+    archivo = open(nombreArchivo, "w", encoding="utf-8")
     diccPersonalidades=cargarBDPersonalidades()
     llavesDicc=list(diccPersonalidades.keys())
     print(llavesDicc)
@@ -724,52 +728,10 @@ def reportes():
             h1(llavesDicc[3])
             for tipo in diccPersonalidades[llavesDicc[3]]:
                 p(tipo)
-        
-            
-    print(doc)
-    f=open("ReportesHTML.html","w")
-    f.write (str(doc))
-    f.close()
 
-def bucleTP(matrizUsuarios):
-    mensaje="<tr>"
-    for tipos in matrizUsuarios:
-        mensaje+="<tr>"
-        c=0 
-        while c<6:
-            if tipos[c]==0:
-                mensaje+="""
-                <th><b>"""+str(tipos[c])+"""</b></th>
-                """
-                c+=1
-        mensaje+="</tr>"
-    return mensaje
-
-def tiposPerso():
-    f=open("TiposDePersonalidad.html","w")
-    mensaje="""
-    <html>
-        <head>
-            <title> Tipos de Persona </title>
-        </head>
-        <h1><b>Tipos de Personas </b></h1>
-        <body>
-            <table>
-                <tr>
-                    <th><b>Cedula</b></th>
-                    <th><b>Nombre</b></th>
-                    <th><b>Genero</b></th>
-                    <th><b>NombreSubtipo</b></th>
-                    <th><b>Pais</b></th>
-                </tr>
-                <tr>"""+bucleTP(matrizUsuarios)+"""</tr>
-            </table>
-        </body>
-    </html>
-    """
-    f.write(mensaje)
-    f.close
-print(tiposPerso())
+    archivo.write(str(doc))    
+    crearAviso("Se generó el reporte con éxito", None)              
+    return 
 
 
 
@@ -777,22 +739,22 @@ print(tiposPerso())
 
 
 
-    ventanaReportes = Toplevel(inicio)
-    ventanaReportes.grab_set()
-    ventanaReportes.title('Menú de reportes')
-    ventanaReportes.geometry('400x450')
-    ventanaReportes.resizable(False, False) 
-    ventanaReportes.configure(bg='white')
-    encabezado = Label(ventanaReportes, text='Reportes', font="Calibri 16",bg='white')
-    encabezado.pack()
-    boton1=Button(ventanaReportes, text="Personalidades", width=50, height=3, bg='#ffffbf').place(x=20, y=40)
-    boton2=Button(ventanaReportes, text="Tipos de Personalidad", width=50, height=3, bg='#ffffbf').place(x=20, y=105) # 65 +
-    boton3=Button(ventanaReportes, text="Información de Usuario", width=50, height=3, bg='#c5e2f6').place(x=20, y=170)
-    boton4=Button(ventanaReportes, text="Mostrar Base de Datos", width=50, height=3, bg='#c5e2f6').place(x=20, y=235)
-    boton5=Button(ventanaReportes, text="Usuarios Retirados", width=50, height=3, bg='#b8daba').place(x=20, y=235)
-    boton6=Button(ventanaReportes, text="Paises", width=50, height=3, bg='#b8daba').place(x=20, y=300)
-    boton7=Button(ventanaReportes, text="Regresar", width=50, height=3, bg='#deb1bf', command=ventanaReportes.destroy).place(x=20, y=365)    
-    return
+#     ventanaReportes = Toplevel(inicio)
+#     ventanaReportes.grab_set()
+#     ventanaReportes.title('Menú de reportes')
+#     ventanaReportes.geometry('400x450')
+#     ventanaReportes.resizable(False, False) 
+#     ventanaReportes.configure(bg='white')
+#     encabezado = Label(ventanaReportes, text='Reportes', font="Calibri 16",bg='white')
+#     encabezado.pack()
+#     boton1=Button(ventanaReportes, text="Personalidades", width=50, height=3, bg='#ffffbf').place(x=20, y=40)
+#     boton2=Button(ventanaReportes, text="Tipos de Personalidad", width=50, height=3, bg='#ffffbf').place(x=20, y=105) # 65 +
+#     boton3=Button(ventanaReportes, text="Información de Usuario", width=50, height=3, bg='#c5e2f6').place(x=20, y=170)
+#     boton4=Button(ventanaReportes, text="Mostrar Base de Datos", width=50, height=3, bg='#c5e2f6').place(x=20, y=235)
+#     boton5=Button(ventanaReportes, text="Usuarios Retirados", width=50, height=3, bg='#b8daba').place(x=20, y=235)
+#     boton6=Button(ventanaReportes, text="Paises", width=50, height=3, bg='#b8daba').place(x=20, y=300)
+#     boton7=Button(ventanaReportes, text="Regresar", width=50, height=3, bg='#deb1bf', command=ventanaReportes.destroy).place(x=20, y=365)    
+#     return
 print(reportes())
 
 
