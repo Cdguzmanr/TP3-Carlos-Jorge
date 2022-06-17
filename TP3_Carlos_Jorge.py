@@ -11,10 +11,13 @@ from tkinter import *
 import re
 import random
 import pickle
+from turtle import bgcolor
 import names
 import xml.etree.cElementTree as ET
-from http.client import FORBIDDEN
+#from http.client import FORBIDDEN
 import datetime
+import dominate
+from dominate.tags import *
 
 # Definción de Variables Globales
 listaPaises = []    # Aquí se almacenará la información de los archivos txt
@@ -439,7 +442,7 @@ def insertarDinamico(participantesGenerados, ventanaRegistroDinamico):
             else:
                 genero=True
             personalidad=(random.randint(0,3),random.randint(0,3))
-            pais=random.randint(0,15)
+            pais=random.randint(0,14)
             ParticipanteOpp.asignarCedula(cedula)
             ParticipanteOpp.asignarNombre(nombre)
             ParticipanteOpp.asignarGenero(genero)
@@ -498,14 +501,14 @@ def actualizarDatos(ventana, numeroUsuario, personalidad, personalidadMostrada):
         crearAviso("Ocurrió un error, vuelva a intentarlo", None)       
     return ""
 
-def personalidadAnterior(numeroUsuario):
+def personalidadAnterior(numeroUsuario): # (1, 0)
     personalidadBase = matrizUsuarios[numeroUsuario].mostrarPersonalidad()
     contador = 0
     for i in diccPersonalidades:
         if contador == personalidadBase[0]:
-            #print(f"{i}-{diccPersonalidades[i][personalidadBase[1]][0]}")
-            contador+=1        
-    return f"{i}-{diccPersonalidades[i][personalidadBase[1]][0]}"
+            return f"{i}-{diccPersonalidades[i][personalidadBase[1]][0]}"
+        contador+=1        
+    return ""
 
 def interfazModificar(numeroUsuario):
     # Setup de ventana
@@ -697,6 +700,132 @@ def exportarXML():
     return
 
 #_________________________________________________________________________________# Boton 7
+# Funciones para la normalización de datos
+def normalizarGenero(genero):
+    if genero == True: return "Hombre"
+    else: return "Mujer"
+def normalizarPersonalidad(cedula):
+    for persona in range(len(matrizUsuarios)):
+            if matrizUsuarios[persona].mostrarCedula()==cedula:
+                return personalidadAnterior(persona)
+def normalizarPais(pais):
+    return listaPaises[pais]
+def normalizarEstado(estado):
+    if estado[0] == True: return "Activo"
+    else: return f"Desactivado: {estado[1]} | {estado[2]}"
+#__________________________________________________________________#
+
+def mostrarBD():
+    # inicialización
+    tiempoActual = datetime.datetime.now()
+    tiempoActual = f"{tiempoActual.day}-{tiempoActual.month}-{tiempoActual.year}-{tiempoActual.hour}-{tiempoActual.minute}-{tiempoActual.second}"       
+    nombreArchivo = f'baseDeDatos-{tiempoActual}.html'
+    archivo = open(nombreArchivo, "w", encoding="utf-8")
+    #Creación del archivo
+    tableHeaders=["Cedula", "Nombre", "Género", "Personalidad", "País", "Estado"] # Se inicializan los encabezados
+    doc = dominate.document(title=f'baseDeDatos-{tiempoActual}')    
+    with doc:
+        with div(cls="container"):
+            h1("Base de Datos Completa")    
+            with table(id="main", cls="table table-striped"):
+                with thead(bgcolor="#84c6ed"):
+                    with tr():
+                        for tableHead in tableHeaders:
+                            th(tableHead)
+                with tbody():
+                    contColor = 0
+                    for usuario in matrizUsuarios:   
+                        if contColor == 0: # Se intercala el color de columna
+                            bcolor = "#e2f0fb"                        
+                            contColor+=1
+                        else:
+                            bcolor = "#c5e2f6"  
+                            contColor=0                                                
+                        with tr(bgcolor=bcolor):
+                            td(usuario.mostrarCedula())
+                            td(usuario.mostrarNombre())
+                            td(normalizarGenero(usuario.mostrarGenero()))
+                            td(normalizarPersonalidad(usuario.mostrarCedula()))
+                            td(normalizarPais(usuario.mostrarPais()))
+                            td(normalizarEstado(usuario.mostrarEstado()))
+    archivo.write(str(doc))    
+    crearAviso("Se generó el reporte con éxito", None)              
+    return 
+
+def mostrarRetirados():
+    # inicialización
+    tiempoActual = datetime.datetime.now()
+    tiempoActual = f"{tiempoActual.day}-{tiempoActual.month}-{tiempoActual.year}-{tiempoActual.hour}-{tiempoActual.minute}-{tiempoActual.second}"       
+    nombreArchivo = f'retirados-{tiempoActual}.html'
+    archivo = open(nombreArchivo, "w", encoding="utf-8")
+    #Creación del archivo
+    tableHeaders=["Cedula", "Nombre", "Fecha", "Justificación"]       
+    doc = dominate.document(title=f'mostrarBD-{tiempoActual}')    
+    with doc:
+        with div(cls="container"):
+            h1("Usuarios Retirados")    
+            with table(id="main", cls="table table-striped"):
+                with thead(bgcolor="#84c6ed"):
+                    with tr():
+                        for tableHead in tableHeaders:
+                            th(tableHead)
+                with tbody():
+                    contColor = 0
+                    for usuario in matrizUsuarios:   
+                        if usuario.mostrarEstado()[0] == False: 
+                            if contColor == 0: # Se intercala el color de columna
+                                bcolor = "#e2f0fb"                        
+                                contColor+=1
+                            else:
+                                bcolor = "#c5e2f6"  
+                                contColor=0                                                
+                            with tr(bgcolor=bcolor):
+                                td(usuario.mostrarCedula())
+                                td(usuario.mostrarNombre())
+                                td(usuario.mostrarEstado()[2])
+                                td(usuario.mostrarEstado()[1])
+    archivo.write(str(doc))    
+    crearAviso("Se generó el reporte con éxito", None)              
+    return 
+
+def mostrarRegistroPais():
+    # inicialización
+    tiempoActual = datetime.datetime.now()
+    tiempoActual = f"{tiempoActual.day}-{tiempoActual.month}-{tiempoActual.year}-{tiempoActual.hour}-{tiempoActual.minute}-{tiempoActual.second}"       
+    nombreArchivo = f'paises-{tiempoActual}.html'
+    archivo = open(nombreArchivo, "w", encoding="utf-8")
+    #Creación del archivo
+    tableHeaders=["País","Cedula", "Nombre", "Estado"]    
+    doc = dominate.document(title=f'baseDeDatos-{tiempoActual}')    
+    with doc:
+        with div(cls="container"):
+            h1("Registro de usuarios según su país")    
+            with table(id="main", cls="table table-striped"):
+                with thead(bgcolor="#84c6ed"):
+                    with tr():
+                        for tableHead in tableHeaders:
+                            th(tableHead)
+                with tbody():
+                    contColor = 0
+                    for pais in listaPaises: # Se realiza la evaluación según país
+                        for usuario in matrizUsuarios:
+                            paisNormal = normalizarPais(usuario.mostrarPais())   
+                            if paisNormal == pais: 
+                                if contColor == 0: # Se intercala el color de columna
+                                    bcolor = "#e2f0fb"                        
+                                    contColor+=1
+                                else:
+                                    bcolor = "#c5e2f6"  
+                                    contColor=0                                                
+                                with tr(bgcolor=bcolor):
+                                    td(paisNormal)
+                                    td(usuario.mostrarCedula())
+                                    td(usuario.mostrarNombre())
+                                    td(normalizarEstado(usuario.mostrarEstado()))
+    archivo.write(str(doc))    
+    crearAviso("Se generó el reporte con éxito", None)              
+    return 
+
 def reportes(): 
     # Check de si cargó BD    
     if not listaPaises or not diccPersonalidades:
@@ -705,7 +834,7 @@ def reportes():
     ventanaReportes = Toplevel(inicio)
     ventanaReportes.grab_set()
     ventanaReportes.title('Menú de reportes')
-    ventanaReportes.geometry('400x450')
+    ventanaReportes.geometry('400x500')
     ventanaReportes.resizable(False, False) 
     ventanaReportes.configure(bg='white')
     encabezado = Label(ventanaReportes, text='Reportes', font="Calibri 16",bg='white')
@@ -713,10 +842,10 @@ def reportes():
     boton1=Button(ventanaReportes, text="Personalidades", width=50, height=3, bg='#ffffbf').place(x=20, y=40)
     boton2=Button(ventanaReportes, text="Tipos de Personalidad", width=50, height=3, bg='#ffffbf').place(x=20, y=105) # 65 +
     boton3=Button(ventanaReportes, text="Información de Usuario", width=50, height=3, bg='#c5e2f6').place(x=20, y=170)
-    boton4=Button(ventanaReportes, text="Mostrar Base de Datos", width=50, height=3, bg='#c5e2f6').place(x=20, y=235)
-    boton5=Button(ventanaReportes, text="Usuarios Retirados", width=50, height=3, bg='#b8daba').place(x=20, y=235)
-    boton6=Button(ventanaReportes, text="Paises", width=50, height=3, bg='#b8daba').place(x=20, y=300)
-    boton7=Button(ventanaReportes, text="Regresar", width=50, height=3, bg='#deb1bf', command=ventanaReportes.destroy).place(x=20, y=365)    
+    boton4=Button(ventanaReportes, text="Mostrar Base de Datos", width=50, height=3, bg='#c5e2f6', command=mostrarBD).place(x=20, y=235)
+    boton5=Button(ventanaReportes, text="Usuarios Retirados", width=50, height=3, bg='#b8daba', command=mostrarRetirados).place(x=20, y=300)
+    boton6=Button(ventanaReportes, text="Paises", width=50, height=3, bg='#b8daba', command=mostrarRegistroPais).place(x=20, y=365)
+    boton7=Button(ventanaReportes, text="Regresar", width=50, height=3, bg='#deb1bf', command=ventanaReportes.destroy).place(x=20, y=430)    
     return
 
 
