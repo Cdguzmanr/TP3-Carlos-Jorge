@@ -21,4 +21,4 @@ Tipos de personalidad Observante (S) y Prospección (P), conocidos por su espont
 *Virtuoso:ISTP
 *Aventurero:ISFP
 *Empresario:ESTP
-*Animador:ESFP
+*Animador:ESFP 
