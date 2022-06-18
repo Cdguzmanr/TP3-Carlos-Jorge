@@ -781,6 +781,44 @@ def tiposPersonalidad():
     archivo.write(str(doc))    
     crearAviso("Se generó el reporte con éxito", None)              
     return
+def infoPersonas():
+
+    tiempoActual = datetime.datetime.now()
+    tiempoActual = f"{tiempoActual.day}-{tiempoActual.month}-{tiempoActual.year}-{tiempoActual.hour}-{tiempoActual.minute}-{tiempoActual.second}"       
+    nombreArchivo = f'personas-{tiempoActual}.html'
+    archivo = open(nombreArchivo, "w", encoding="utf-8")
+    #Creación del archivo
+    tableHeaders=["Cedula"]    
+    doc = dominate.document(title=f'Informacion de Personas-{tiempoActual}')    
+    with doc:
+   
+        with div(cls="container"):
+            h1("Informacion de los Participantes")    
+            with table(id="main", cls="table table-striped"):
+                with thead(bgcolor="#84c6ed"):
+                    with tr():
+                        for tableHead in tableHeaders:
+                            th(tableHead)
+                with tbody():
+                    usuario=matrizUsuarios
+                    contColor = 0
+                    for cedula in usuario: 
+                            if cedula == usuario:
+                                True
+                            else:
+                                print("Su cédula no coincide con ninguno de nuestros usuarios.")
+                                if contColor == 0:
+                                    bcolor = "#e2f0fb"                        
+                                    contColor+=1
+                                else:
+                                    bcolor = "#c5e2f6"  
+                                    contColor=0                                                
+                                with tr(bgcolor=bcolor):
+                                    td(usuario.mostrarCedula())
+                                    
+    archivo.write(str(doc))    
+    crearAviso("Se generó el reporte con éxito", None)              
+    return 
 def mostrarBD():
     # inicialización
     tiempoActual = datetime.datetime.now()
@@ -907,7 +945,7 @@ def reportes():
     encabezado.pack()
     boton1=Button(ventanaReportes, text="Personalidades", width=50, height=3, bg='#ffffbf').place(x=20, y=40)
     boton2=Button(ventanaReportes, text="Tipos de Personalidad", width=50, height=3, bg='#ffffbf', command=tiposPersonalidad).place(x=20, y=105) # 65 +
-    boton3=Button(ventanaReportes, text="Información de Usuario", width=50, height=3, bg='#c5e2f6').place(x=20, y=170)
+    boton3=Button(ventanaReportes, text="Información de Usuario", width=50, height=3, bg='#c5e2f6', command=infoPersonas).place(x=20, y=170)
     boton4=Button(ventanaReportes, text="Mostrar Base de Datos", width=50, height=3, bg='#c5e2f6', command=mostrarBD).place(x=20, y=235)
     boton5=Button(ventanaReportes, text="Usuarios Retirados", width=50, height=3, bg='#b8daba', command=mostrarRetirados).place(x=20, y=300)
     boton6=Button(ventanaReportes, text="Paises", width=50, height=3, bg='#b8daba', command=mostrarRegistroPais).place(x=20, y=365)
