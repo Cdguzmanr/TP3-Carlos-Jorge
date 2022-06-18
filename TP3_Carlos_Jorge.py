@@ -421,10 +421,10 @@ def insertarDinamico(participantesGenerados, ventanaRegistroDinamico):
         crearAviso('Entrada debe ser numérica.', None)
         return ''
     elif int(participantesGenerados) < 25:
-        crearAviso('Entrada debe ser mayor a 25.', None)
+        crearAviso('Entrada debe ser mayor o igual a 25.', None)
         return ''        
-    elif int(participantesGenerados) > 99:
-        crearAviso('Debe ingresar un valor menor a 99.', None)
+    elif int(participantesGenerados) > 999:
+        crearAviso('Debe ingresar un valor menor o igual a 999.', None)
         return ''
     print("\n\n_____________________________________\nLista de usuarios actualizada:")            
     try:     
@@ -700,7 +700,7 @@ def exportarXML():
     return
 
 #_________________________________________________________________________________# Boton 7
-# Funciones para la normalización de datos
+# Funciones para la normalización de datos 
 def normalizarGenero(genero):
     if genero == True: return "Hombre"
     else: return "Mujer"
@@ -714,8 +714,180 @@ def normalizarEstado(estado):
     if estado[0] == True: return "Activo"
     else: return f"Desactivado: {estado[1]} | {estado[2]}"
 #__________________________________________________________________#
+def personalidadesMBTI(): 
+    # inicialización
+    tiempoActual = datetime.datetime.now()
+    tiempoActual = f"{tiempoActual.day}-{tiempoActual.month}-{tiempoActual.year}-{tiempoActual.hour}-{tiempoActual.minute}-{tiempoActual.second}"       
+    nombreArchivo = f'personalidades-{tiempoActual}.html'
+    archivo = open(nombreArchivo, "w", encoding="utf-8")
+    # Creación del archivo
+    tableHeaders=["Tipo", "Título", "Código"]  
+#    print(llavesDicc)
+    doc= dominate.document(title="personalidades")
+    with doc:
+        with div(cls="container"):
+            h1("Personalidades MBTI")    
+            with table(id="main", cls="table table-striped"):
+                with thead(bgcolor="#84c6ed"):
+                    with tr():
+                        for tableHead in tableHeaders:
+                            th(tableHead)
+                with tbody():
+                    contColor = 0
+                    for tipo in diccPersonalidades:
+                        if contColor == 0: # Se intercala el color de columna
+                            bcolor = "#ffffbf"  
+                        elif contColor == 1: 
+                            bcolor = "#c5e2f6"         
+                        elif contColor == 2: 
+                            bcolor = "#b8daba"                                                                     
+                        else:
+                            bcolor = "#deb1bf"                           
+                        for titulo in diccPersonalidades[tipo]:                          
+                            with tr(bgcolor=bcolor):
+                                td(tipo)
+                                td(titulo[0])
+                                td(titulo[1])
+                        contColor+=1
+    archivo.write(str(doc))    
+    crearAviso("Se generó el reporte con éxito", None)              
+    return 
 
-def mostrarBD():
+
+def tiposPersonalidad(ventana, personalidad): # Reporte 2
+    # Validación inicial
+    if repr(personalidad) == "''":
+        crearAviso("Debe seleccionar una personalidad", None)
+        return ""
+    tiempoActual = datetime.datetime.now()
+    tiempoActual = f"{tiempoActual.day}-{tiempoActual.month}-{tiempoActual.year}-{tiempoActual.hour}-{tiempoActual.minute}-{tiempoActual.second}"       
+    nombreArchivo = f'tipos-{tiempoActual}.html'
+    archivo = open(nombreArchivo, "w", encoding="utf-8")
+    tableHeaders=["Cedula","Nombre","Genero","Personalidad","Pais"]
+    doc=dominate.document(title=f"tipos-{tiempoActual}")
+    with doc:
+        with div(cls="container"):
+            h1("Tipos de Personalidades Obtenidas")    
+            with table(id="main", cls="table table-striped"):
+                with thead(bgcolor="#84c6ed"):
+                    with tr():
+                        for tableHead in tableHeaders:
+                            th(tableHead)
+                    with body():
+                        contColor=0
+                        print(f"\nPersonalidad a buscar: {personalidad}")
+                        for usuario in matrizUsuarios:
+                            personalidadUsuario = normalizarPersonalidad(usuario.mostrarCedula())
+                            if personalidadUsuario == personalidad:
+                                if contColor==0:
+                                    bcolor = "#e2f0fb"                        
+                                    contColor+=1
+                                else:
+                                    bcolor = "#c5e2f6"  
+                                    contColor=0
+                                with tr(bgcolor=bcolor):
+                                    td(usuario.mostrarCedula())
+                                    td(usuario.mostrarNombre())
+                                    td(normalizarGenero(usuario.mostrarGenero()))
+                                    td(personalidadUsuario)
+                                    td(normalizarPais(usuario.mostrarPais()))
+    archivo.write(str(doc))    
+    ventana.destroy()
+    crearAviso("Se generó el reporte con éxito", None)              
+    return
+def puenteReportePersonalidad(ventanaReportes): # Reporte 2
+    ventanaRepPersonalidad = Toplevel(ventanaReportes)      
+    ventanaRepPersonalidad.grab_set()
+    ventanaRepPersonalidad.resizable(False, False)
+    ventanaRepPersonalidad.title('Seleccionar Personalidad')
+    ventanaRepPersonalidad.geometry('550x150')
+    ventanaRepPersonalidad.configure(bg='white')   
+    # Encabezado
+    encabezadoReportePersonalidad = Label(ventanaRepPersonalidad, text="Reporte Personalidades", font=("Calibri 20"),bg='white').place(x=180, y=10)
+    # Personalidad
+    personalidadTexto = Label(ventanaRepPersonalidad, text="Ingrese la personalidad a exportar:", font=("Calibri 12"),bg='white').place(x=25, y=60)    
+    personalidad = StringVar()
+    personalidadSelect = OptionMenu(ventanaRepPersonalidad,personalidad, *listaPersonalidades)
+    personalidadSelect.place(x=305, y=60)
+    personalidadSelect.config(width=30)
+    # Botones
+    insertar = Button(ventanaRepPersonalidad, text="Continuar", width=20, height=2, bg='#ffffbf', command=lambda: tiposPersonalidad(ventanaRepPersonalidad, personalidad.get()))
+    limpiar = Button(ventanaRepPersonalidad, text="Limpiar", width=20, height=2, bg='#b8daba', command=lambda: refrescarVentana(ventanaRepPersonalidad, lambda:puenteReportePersonalidad()))
+    regresar = Button(ventanaRepPersonalidad, text="Regresar", width=20, height=2, bg='#deb1bf', command=lambda: ventanaRepPersonalidad.destroy())
+    insertar.place(x = 25, y = 100)
+    limpiar.place(x = 200, y = 100)
+    regresar.place(x = 375, y = 100) 
+    return ""
+
+def infoPersonas(persona): # Reporte 3
+    tiempoActual = datetime.datetime.now()
+    tiempoActual = f"{tiempoActual.day}-{tiempoActual.month}-{tiempoActual.year}-{tiempoActual.hour}-{tiempoActual.minute}-{tiempoActual.second}"       
+    nombreArchivo = f'personas-{tiempoActual}.html'
+    archivo = open(nombreArchivo, "w", encoding="utf-8")
+    #Creación del archivo
+    tableHeaders=["Cedula", "Nombre", "Género", "Personalidad", "País", "Estado"]   
+    doc = dominate.document(title=f'personas-{tiempoActual}')    
+    with doc:
+        with div(cls="container"):
+            h1("Información de Usuario")    
+            with table(id="main", cls="table table-striped"):
+                with thead(bgcolor="#84c6ed"):
+                    with tr():
+                        for tableHead in tableHeaders:
+                            th(tableHead)
+                with tbody():
+                    usuario = matrizUsuarios[persona]                                             
+                    with tr(bgcolor="#e2f0fb"):
+                        td(usuario.mostrarCedula())
+                        td(usuario.mostrarNombre())
+                        td(normalizarGenero(usuario.mostrarGenero()))
+                        td(normalizarPersonalidad(usuario.mostrarCedula()))
+                        td(normalizarPais(usuario.mostrarPais()))
+                        td(normalizarEstado(usuario.mostrarEstado()))
+                                    
+    archivo.write(str(doc))    
+    crearAviso("Se generó el reporte con éxito", None)              
+    return 
+
+def validacionReporteUsuario(ventana, cedula): # Reporte 3
+    """ Valida el avance hacia la ventana de moficar la personalidad del usuario """
+    if not validarCedulas(cedula):
+        print(f"\nDatos de ingreso: '{cedula}'")
+        crearAviso("Cédula inválida, debe seguir el formato #-####-####", ventana)
+        return "" 
+    for persona in range(len(matrizUsuarios)):
+        if matrizUsuarios[persona].mostrarCedula()==cedula:
+            ventana.destroy()
+            infoPersonas(persona)                
+            return ""
+    crearAviso("Esta cédula no se encuentra registrada", ventana)
+    return "" 
+
+def puenteReporteUsuario(ventanaReportes): # Reporte 3
+    ventanaRepUsuario = Toplevel(ventanaReportes)      
+    ventanaRepUsuario.grab_set()
+    ventanaRepUsuario.resizable(False, False)
+    ventanaRepUsuario.title('Seleccionar Usuario')
+    ventanaRepUsuario.geometry('550x150')
+    ventanaRepUsuario.configure(bg='white')   
+    # Encabezado
+    encabezadoRepUsuario = Label(ventanaRepUsuario, text="Reporte Usuario", font=("Calibri 20"),bg='white').place(x=180, y=10)
+    # Cuadro de texto
+    usuarioTexto = Label(ventanaRepUsuario, text="Ingrese la cedula del usuario a exportar:", font=("Calibri 12"),bg='white').place(x=25, y=60)    
+    entradaCedula = Text(ventanaRepUsuario,height=1,width=20,bg = 'lightblue')
+    entradaCedula.place(x=315, y=64) 
+    entradaCedula.bind('<Return>', lambda evento: validacionReporteUsuario(ventanaRepUsuario, entradaCedula.get('1.0', 'end-1c')))
+    entradaCedula.bind('<FocusOut>', lambda evento: entradaCedula.delete('1.0', END))    
+    # Botones
+    insertar = Button(ventanaRepUsuario, text="Continuar", width=20, height=2, bg='#ffffbf', command=lambda: validacionReporteUsuario(ventanaRepUsuario, entradaCedula.get('1.0', 'end-1c')))
+    limpiar = Button(ventanaRepUsuario, text="Limpiar", width=20, height=2, bg='#b8daba', command=lambda: refrescarVentana(ventanaRepUsuario, lambda:puenteReporteUsuario(ventanaReportes)))
+    regresar = Button(ventanaRepUsuario, text="Regresar", width=20, height=2, bg='#deb1bf', command=lambda: ventanaRepUsuario.destroy())
+    insertar.place(x = 25, y = 100)
+    limpiar.place(x = 200, y = 100)
+    regresar.place(x = 375, y = 100) 
+    return ""
+
+def mostrarBD(): # Reportes 4
     # inicialización
     tiempoActual = datetime.datetime.now()
     tiempoActual = f"{tiempoActual.day}-{tiempoActual.month}-{tiempoActual.year}-{tiempoActual.hour}-{tiempoActual.minute}-{tiempoActual.second}"       
@@ -752,7 +924,7 @@ def mostrarBD():
     crearAviso("Se generó el reporte con éxito", None)              
     return 
 
-def mostrarRetirados():
+def mostrarRetirados(): # Reporte 5
     # inicialización
     tiempoActual = datetime.datetime.now()
     tiempoActual = f"{tiempoActual.day}-{tiempoActual.month}-{tiempoActual.year}-{tiempoActual.hour}-{tiempoActual.minute}-{tiempoActual.second}"       
@@ -760,7 +932,7 @@ def mostrarRetirados():
     archivo = open(nombreArchivo, "w", encoding="utf-8")
     #Creación del archivo
     tableHeaders=["Cedula", "Nombre", "Fecha", "Justificación"]       
-    doc = dominate.document(title=f'mostrarBD-{tiempoActual}')    
+    doc = dominate.document(title=f'retirados-{tiempoActual}')    
     with doc:
         with div(cls="container"):
             h1("Usuarios Retirados")    
@@ -788,7 +960,7 @@ def mostrarRetirados():
     crearAviso("Se generó el reporte con éxito", None)              
     return 
 
-def mostrarRegistroPais():
+def mostrarRegistroPais(): # reporte 6
     # inicialización
     tiempoActual = datetime.datetime.now()
     tiempoActual = f"{tiempoActual.day}-{tiempoActual.month}-{tiempoActual.year}-{tiempoActual.hour}-{tiempoActual.minute}-{tiempoActual.second}"       
@@ -796,7 +968,7 @@ def mostrarRegistroPais():
     archivo = open(nombreArchivo, "w", encoding="utf-8")
     #Creación del archivo
     tableHeaders=["País","Cedula", "Nombre", "Estado"]    
-    doc = dominate.document(title=f'baseDeDatos-{tiempoActual}')    
+    doc = dominate.document(title=f'pais-{tiempoActual}')    
     with doc:
         with div(cls="container"):
             h1("Registro de usuarios según su país")    
@@ -839,9 +1011,9 @@ def reportes():
     ventanaReportes.configure(bg='white')
     encabezado = Label(ventanaReportes, text='Reportes', font="Calibri 16",bg='white')
     encabezado.pack()
-    boton1=Button(ventanaReportes, text="Personalidades", width=50, height=3, bg='#ffffbf').place(x=20, y=40)
-    boton2=Button(ventanaReportes, text="Tipos de Personalidad", width=50, height=3, bg='#ffffbf').place(x=20, y=105) # 65 +
-    boton3=Button(ventanaReportes, text="Información de Usuario", width=50, height=3, bg='#c5e2f6').place(x=20, y=170)
+    boton1=Button(ventanaReportes, text="Personalidades", width=50, height=3, bg='#ffffbf', command=personalidadesMBTI).place(x=20, y=40)
+    boton2=Button(ventanaReportes, text="Tipos de Personalidad", width=50, height=3, bg='#ffffbf', command=lambda: puenteReportePersonalidad(ventanaReportes)).place(x=20, y=105) # 65 +
+    boton3=Button(ventanaReportes, text="Información de Usuario", width=50, height=3, bg='#c5e2f6', command=lambda: puenteReporteUsuario(ventanaReportes)).place(x=20, y=170)
     boton4=Button(ventanaReportes, text="Mostrar Base de Datos", width=50, height=3, bg='#c5e2f6', command=mostrarBD).place(x=20, y=235)
     boton5=Button(ventanaReportes, text="Usuarios Retirados", width=50, height=3, bg='#b8daba', command=mostrarRetirados).place(x=20, y=300)
     boton6=Button(ventanaReportes, text="Paises", width=50, height=3, bg='#b8daba', command=mostrarRegistroPais).place(x=20, y=365)
